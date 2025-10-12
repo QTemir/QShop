@@ -1,0 +1,34 @@
+.page-root{
+    display:flex;
+    min-height:100vh;
+    background:#f4f7fb;
+}
+
+/* основной блок справа */
+.page-main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+/* контент под topbar */
+.page-content{
+    padding:22px;
+}
+
+/* сетка товаров: макет 3 в ряд на большом экране — макет из рисунка показывает 3 карточки */
+.grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:24px;
+}
+
+/* проброс на tablet/mobile */
+@media (max-width:1100px){
+    .grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:760px){
+    .grid{ grid-template-columns: 1fr; padding: 10px; }
+    .sb-root{ display:none; } /* на мобильных скрываем сайдбар */
+    .page-main{ padding:0; }
+}
