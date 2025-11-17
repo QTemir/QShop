@@ -1,26 +1,37 @@
 import React, { useState } from "react";
 import "./LoginPage.css";
-import illustration from "../assets/login-illustration.svg"; // путь к svg
-import { useNavigate } from "react-router-dom"; // ✅ добавили
+import illustration from "../assets/login-illustration.svg";
+import { useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
+export default function LoginPage({ onLogin }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const isValid = email.trim() && password.trim();
+    const navigate = useNavigate();
 
-    const navigate = useNavigate(); // ✅ добавили
+    const isValid = email.trim() && password.trim();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Login:", { email, password });
 
-        // ✅ ИМЕННО ЭТА СТРОКА:
-        navigate("/products"); // переход на страницу товаров
+        // Сохраняем email в localStorage
+        localStorage.setItem("userEmail", email);
+
+        // Вызываем функцию из App.js (чтобы React знал, кто вошёл)
+        onLogin?.(email);
+
+        const lowerEmail = email.toLowerCase();
+
+        if (lowerEmail.startsWith("admin@")) {
+            navigate("/admin");
+        } else if (lowerEmail.startsWith("client@")) {
+            navigate("/client/admin"); // главная страница клиента
+        } else {
+            navigate("/products");
+        }
     };
 
     return (
         <div className="login-container">
-
             {/* Левая часть */}
             <div className="login-left">
                 <div className="login-content">
@@ -60,7 +71,11 @@ export default function LoginPage() {
 
             {/* Правая часть */}
             <div className="login-right">
-                <img src={illustration} alt="Illustration" className="login-image" />
+                <img
+                    src={illustration}
+                    alt="Illustration"
+                    className="login-image"
+                />
             </div>
         </div>
     );

@@ -104,6 +104,54 @@
 .pd-rec-title { margin-top:10px; font-weight:600; }
 .pd-rec-price { color:#0b1730; margin-top:6px; font-weight:700; }
 
+/* layout integration */
+.page-layout {
+    display: flex;
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Toast — уведомление */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+    font-weight: 500;
+}
+
+.toast-btn {
+    background: linear-gradient(90deg, #0C1CFF, #3EFFD8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
 /* responsive */
 @media (max-width: 1100px) {
     .pd-main-grid { grid-template-columns: 64px 1fr 320px; }
