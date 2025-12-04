@@ -1,0 +1,79 @@
+/* Контейнер верхнего бара */
+.tb-root {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid #eef2f6;
+    background: #fff;
+}
+
+/* Заголовок */
+.tb-title {
+    margin: 0;
+    font-size: 18px;
+    color: #1f2937;
+}
+
+/* Обёртка для ограничения ширины */
+.tb-search-wrapper {
+    flex-shrink: 0;
+    margin-right: 24px; /* ✅ отступ справа как в макете */
+}
+
+/* Само поле поиска */
+.tb-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 320px;
+    max-width: 100%;
+    padding: 1px; /* ✅ нужно для градиента */
+    border-radius: 12px;
+
+    /* ✅ Градиентная рамка (замени цвета на свои) */
+    background: linear-gradient(to right, #0C1CFF, #3EFFD8);
+}
+
+/* Внутренняя область (фон input) */
+.tb-search .tb-input {
+    width: 100%;
+    padding: 10px 12px 10px 38px; /* ✅ left padding для иконки */
+    font-size: 14px;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+
+    /* фон input */
+    background: #f8fbff;
+
+    /* чтобы фон не перекрывал градиентную рамку */
+    box-sizing: border-box;
+}
+
+/* Иконка лупы */
+.tb-icon {
+    position: absolute;
+    left: 12px;
+    color: #0d1b2a;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .tb-root {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .tb-search-wrapper {
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .tb-search {
+        width: 100%;
+    }
+}

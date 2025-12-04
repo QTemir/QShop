@@ -1,0 +1,176 @@
+/* ProductDetail.css — стили, подогнанные под макет Figma */
+
+/* переменные */
+:root{
+    --container: 1180px;
+    --accent-start: #0C1CFF;
+    --accent-end: #3EFFD8;
+    --muted: #56606a;
+    --bg: #f6f9fb;
+}
+
+/* корневой фон */
+.pd-root { background: var(--bg); min-height: 100vh; padding: 28px 0; }
+.pd-container { width: 94%; max-width: var(--container); margin: 0 auto; }
+
+/* breadcrumbs */
+.pd-breadcrumbs { color: var(--muted); margin-bottom: 18px; }
+.pd-breadcrumbs a { color: var(--accent-start); text-decoration: none; }
+
+/* основная сетка: thumbs | media | info */
+.pd-main-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 380px;
+    gap: 28px;
+    align-items: start;
+}
+
+/* thumbnails */
+.pd-thumbs { display:flex; flex-direction:column; gap:12px; align-items:center; padding-top:6px; }
+.pd-thumb {
+    width:66px;
+    height:66px;
+    border-radius:12px;
+    background-size:cover;
+    background-position:center;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 12px rgba(10,20,30,0.04);
+    cursor:pointer;
+}
+.pd-thumb.active { border-color: rgba(12,28,255,0.12); transform: translateY(-2px); }
+
+/* media area */
+.pd-media { display:flex; flex-direction:column; gap:12px; }
+.pd-slider { overflow:hidden; border-radius:12px; background:#fff; box-shadow: 0 10px 30px rgba(8,20,30,0.06); }
+.pd-strip { display:flex; transition: transform 350ms ease; }
+.pd-slide { min-width:100%; display:flex; align-items:center; justify-content:center; padding:34px; }
+.pd-slide img { width:100%; max-width:520px; object-fit:contain; border-radius:8px; }
+
+/* controls under image */
+.pd-controls { display:flex; align-items:center; justify-content:space-between; padding:10px 6px; gap:12px; }
+.pd-arrow { background:#fff; border:1px solid #e6eef6; padding:8px 12px; border-radius:10px; cursor:pointer; font-size:20px; }
+.pd-arrow:disabled { opacity:0.5; cursor:default; }
+
+.pd-dots { display:flex; gap:8px; flex:1; justify-content:center; }
+.pd-dot { width:10px; height:10px; border-radius:50%; background:#e6eef6; border:none; cursor:pointer; }
+.pd-dot.active { background:var(--accent-start); box-shadow:0 6px 16px rgba(12,28,255,0.12); }
+
+/* right info column */
+.pd-info { background:#fff; border-radius:12px; padding:22px; box-shadow: 0 10px 30px rgba(8,20,30,0.06); position:relative; }
+.pd-title { font-size:28px; margin:0 0 8px; font-weight:800; text-transform:uppercase; color:#0b1b28; }
+.pd-price-row { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.pd-price { font-size:20px; font-weight:800; color:#0b1730; }
+.pd-description { color:var(--muted); margin-bottom:14px; }
+
+/* colors and sizes */
+.pd-colors-sizes { display:flex; gap:18px; margin-bottom:18px; align-items:center; }
+.pd-label { font-size:13px; color:#7b8792; margin-bottom:8px; }
+.pd-color-list { display:flex; gap:8px; align-items:center; }
+.pd-color { width:28px; height:28px; border-radius:50%; border: 2px solid rgba(0,0,0,0.06); cursor:pointer; }
+.pd-color.selected { outline: 3px solid rgba(12,28,255,0.12); transform:scale(1.03); }
+.pd-size-list { display:flex; gap:8px; align-items:center; }
+.pd-size { padding:8px 12px; border-radius:12px; background:#f3f6fa; border:none; cursor:pointer; color:#222; }
+.pd-size.selected { background: linear-gradient(90deg,var(--accent-start),var(--accent-end)); color:#fff; }
+
+/* buy row */
+.pd-buy-row { display:flex; gap:12px; align-items:center; margin-bottom:18px; }
+.pd-qty { display:flex; align-items:center; gap:8px; background:#fff; padding:6px; border-radius:10px; box-shadow:0 4px 10px rgba(8,20,30,0.04); }
+.qty-btn { background:transparent; border:none; padding:6px 10px; font-size:20px; cursor:pointer; }
+.qty-value { min-width:36px; text-align:center; font-weight:700; }
+
+/* add to cart button — gradient */
+.pd-add-to-cart {
+    padding:12px 18px;
+    border-radius:28px;
+    border:none;
+    cursor:pointer;
+    color:#fff;
+    font-weight:700;
+    background: linear-gradient(90deg,var(--accent-start),var(--accent-end));
+    box-shadow: 0 10px 30px rgba(12,28,255,0.12);
+}
+
+/* description/specs area (below grid in layout but in our column we show summary + details) */
+.pd-desc-specs { margin-top:16px; color:var(--muted); }
+.pd-specs-list { margin:8px 0 0 16px; color:var(--muted); }
+
+/* recommendations */
+.pd-recommendations { margin-top:36px; }
+.pd-recs-title { margin:0 0 18px; font-size:22px; text-transform:uppercase; text-align:center; }
+.pd-recs-row { display:flex; gap:20px; overflow-x:auto; padding-bottom:8px; }
+.pd-rec-card { min-width:210px; max-width:230px; background:#fff; border-radius:12px; padding:12px; text-decoration:none; color:inherit; box-shadow:0 10px 30px rgba(8,20,30,0.06); }
+.pd-rec-img-wrap { width:100%; height:140px; display:flex; align-items:center; justify-content:center; background:#f7fafc; border-radius:8px; overflow:hidden; }
+.pd-rec-img-wrap img { width:100%; height:100%; object-fit:contain; }
+.pd-rec-title { margin-top:10px; font-weight:600; }
+.pd-rec-price { color:#0b1730; margin-top:6px; font-weight:700; }
+
+/* layout integration */
+.page-layout {
+    display: flex;
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Toast — уведомление */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #fff;
+    border: 1px solid #e6eef6;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+    font-weight: 500;
+}
+
+.toast-btn {
+    background: linear-gradient(90deg, #0C1CFF, #3EFFD8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* responsive */
+@media (max-width: 1100px) {
+    .pd-main-grid { grid-template-columns: 64px 1fr 320px; }
+    .pd-slide img { max-width:420px; }
+    .pd-rec-card { min-width:180px; }
+}
+
+@media (max-width: 880px) {
+    .pd-main-grid { grid-template-columns: 1fr; }
+    .pd-thumbs { order: 2; flex-direction: row; gap:10px; justify-content:flex-start; padding-top:0; }
+    .pd-thumb { width:72px; height:72px; }
+    .pd-media { order:1; }
+    .pd-info { order:2; margin-top:16px; }
+    .pd-recs-row { padding-left: 6px; }
+}
+
+/* small phones */
+@media (max-width: 420px) {
+    .pd-title { font-size:20px; }
+    .pd-price { font-size:18px; }
+    .pd-rec-img-wrap { height:120px; }
+}
