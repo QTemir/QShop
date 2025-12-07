@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QShop Panel</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@300;400;600&family=Roboto:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Lato:wght@300;400;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function getContrastColor(hex){
+      if(!hex) return '#374151';
+      const c = String(hex).replace('#','');
+      if(c.length !== 6) return '#374151';
+      const r = parseInt(c.substring(0,2),16);
+      const g = parseInt(c.substring(2,4),16);
+      const b = parseInt(c.substring(4,6),16);
+      const yiq = ((r*299)+(g*587)+(b*114))/1000;
+      return yiq >= 128 ? '#374151' : '#ffffff';
+    }
+
+    function GradientButton({ children, onClick }) {
+      return (
+        <button className="gradient-btn" onClick={onClick}>{children}</button>
+      );
+    }
+
+    function FeatureCard({ icon, title, desc, onClick }) {
+      const interactiveProps = {};
+      if(onClick){
+        interactiveProps.role = 'button';
+        interactiveProps.tabIndex = 0;
+        interactiveProps.onClick = onClick;
+        interactiveProps.onKeyDown = (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); onClick && onClick(); } };
+      }
+      return (
+        <div className="card" {...interactiveProps}>
+          <div className="card-icon" aria-hidden>{icon}</div>
+          <h3>{title}</h3>
+          <p>{desc}</p>
+        </div>
+      );
+    }
+
+    function Modal({ open, title, children, onClose }){
+      useEffect(()=>{
+        function onKey(e){ if(e.key === 'Escape') onClose(); }
+        if(open) window.addEventListener('keydown', onKey);
+        return ()=> window.removeEventListener('keydown', onKey);
+      },[open]);
+
+      if(!open) return null;
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" onClick={(e)=>e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <button className="modal-close" onClick={onClose} aria-label="Закрыть">×</button>
+            <h2 id="modal-title">{title}</h2>
+            <div className="modal-body">{children}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function Panel() {
+      const [route, setRoute] = useState(window.location.hash.replace('#','') || '/');
+
+      useEffect(()=>{
+        function onHash(){ setRoute(window.location.hash.replace('#','') || '/'); }
+        window.addEventListener('hashchange', onHash);
+        return ()=> window.removeEventListener('hashchange', onHash);
+      },[]);
+
+      function navigate(path){ window.location.hash = path; }
+
+      // Apply saved theme (colors/fonts) on app load
+      useEffect(()=>{
+        const savedFont = localStorage.getItem('qshop_font');
+        const savedPrimary = localStorage.getItem('qshop_primary');
+        const savedHeaderBg = localStorage.getItem('qshop_header_bg');
+        const savedHeaderTitle = localStorage.getItem('qshop_header_title');
+        const savedThemeName = localStorage.getItem('qshop_theme_name');
+        if(savedPrimary) document.documentElement.style.setProperty('--primary', savedPrimary);
+        if(savedFont){
+          const f = savedFont === 'SF Pro' ? "'SF Pro Display', 'SF Pro Text', system-ui" : savedFont === 'Rubik' ? "'Rubik', system-ui, -apple-system" : 'system-ui, -apple-system, "Segoe UI", Roboto';
+          document.body.style.fontFamily = f;
+        }
+        if(savedHeaderBg) {
+          document.documentElement.style.setProperty('--header-bg-color', savedHeaderBg);
+          document.documentElement.style.setProperty('--header-text-color', getContrastColor(savedHeaderBg));
+        }
+        if(savedHeaderTitle){ const hh = document.querySelector('.panel-header h1'); if(hh) hh.innerText = savedHeaderTitle; }
+        if(savedThemeName === 'dark'){
+          document.documentElement.style.setProperty('--bg', '#0b1220');
+          document.documentElement.style.setProperty('--text', '#e6eef8');
+          document.documentElement.style.setProperty('--muted', '#94a3b8');
+          document.documentElement.style.setProperty('--card-bg', '#071026');
+        } else if(savedThemeName === 'soft'){
+          document.documentElement.style.setProperty('--bg', '#f0f8ff');
+          document.documentElement.style.setProperty('--text', '#24303a');
+          document.documentElement.style.setProperty('--muted', '#6b7280');
+          document.documentElement.style.setProperty('--card-bg', '#ffffff');
+        }
+      }, []);
+      function StorePage(){
+        return (
+          <div className="page">
+            <h2>Личный магазин</h2>
+            <p>Здесь вы можете управлять товарами, заказами и аналитикой вашего магазина. Интерфейс позволяет добавлять товары, редактировать их и отслеживать продажи.</p>
+            <div style={{marginTop:18}}><GradientButton onClick={()=>navigate('/')}>Назад</GradientButton></div>
+          </div>
+        );
+      }
+
+      function ThemesPage(){
+        // interactive theme editor with palettes and fonts
+        const defaultColors = ['#0c1cff','#3effd8','#ff6b6b','#ff9f1c','#ffd166','#06d6a0','#118ab2','#06a3ff','#7c3aed','#ef476f'];
+        const fontOptions = [
+          {key:'Rubik', label:'Rubik'},
+          {key:'Inter', label:'Inter'},
+          {key:'Poppins', label:'Poppins'},
+          {key:'Roboto', label:'Roboto'},
+          {key:'Open Sans', label:'Open Sans'},
+          {key:'Lato', label:'Lato'},
+          {key:'Merriweather', label:'Merriweather'},
+          {key:'SF Pro', label:'SF Pro'},
+          {key:'Arial', label:'Arial'},
+          {key:'Georgia', label:'Georgia'}
+        ];
+
+        const [themeName, setThemeName] = useState(localStorage.getItem('qshop_theme_name') || 'default');
+        const [fontFamily, setFontFamily] = useState(localStorage.getItem('qshop_font') || 'Rubik');
+        const [primary, setPrimary] = useState(localStorage.getItem('qshop_primary') || getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0c1cff');
+        
+        const [headerBg, setHeaderBg] = useState(localStorage.getItem('qshop_header_bg') || getComputedStyle(document.documentElement).getPropertyValue('--header-bg-color').trim() || '#ffffff');
+        const [headerTitle, setHeaderTitle] = useState(localStorage.getItem('qshop_header_title') || (document.querySelector('.panel-header h1') ? document.querySelector('.panel-header h1').innerText : 'QShop'));
+
+        function applyThemeConfig(cfg){
+          if(cfg.bg) document.documentElement.style.setProperty('--bg', cfg.bg);
+          if(cfg.text) document.documentElement.style.setProperty('--text', cfg.text);
+          if(cfg.muted) document.documentElement.style.setProperty('--muted', cfg.muted);
+          if(cfg.cardBg) document.documentElement.style.setProperty('--card-bg', cfg.cardBg);
+          if(cfg.primary) document.documentElement.style.setProperty('--primary', cfg.primary);
+          if(cfg.accent) document.documentElement.style.setProperty('--accent', cfg.accent);
+          if(cfg.font) document.body.style.fontFamily = cfg.font;
+        }
+
+        // Live preview when selections change (primary only)
+        useEffect(()=>{
+          applyThemeConfig({primary});
+        }, [primary]);
+
+        useEffect(()=>{
+          const f = fontFamily === 'SF Pro' ? "'SF Pro Display', 'SF Pro Text', system-ui" : fontFamily === 'Rubik' ? "'Rubik', system-ui, -apple-system" : fontFamily === 'Inter' ? "'Inter', system-ui" : fontFamily === 'Poppins' ? "'Poppins', system-ui" : fontFamily === 'Roboto' ? "'Roboto', system-ui" : fontFamily;
+          document.body.style.fontFamily = f;
+        }, [fontFamily]);
+
+        // apply theme preset immediately
+        useEffect(()=>{
+          if(themeName === 'dark'){
+            applyThemeConfig({bg:'#0b1220', text:'#e6eef8', muted:'#94a3b8', cardBg:'#071026'});
+          } else if(themeName === 'soft'){
+            applyThemeConfig({bg:'#f0f8ff', text:'#24303a', muted:'#6b7280', cardBg:'#ffffff'});
+          } else {
+            applyThemeConfig({bg:'#f7fafc', text:'#374151', muted:'#6b7280', cardBg:'#ffffff'});
+          }
+          // ensure header is applied after theme preset
+          document.documentElement.style.setProperty('--header-bg-color', headerBg);
+          document.documentElement.style.setProperty('--header-text-color', getContrastColor(headerBg));
+          const hh = document.querySelector('.panel-header h1'); if(hh) hh.innerText = headerTitle;
+        }, [themeName]);
+
+        // apply header changes live (bg + computed text color)
+        useEffect(()=>{
+          document.documentElement.style.setProperty('--header-bg-color', headerBg);
+          document.documentElement.style.setProperty('--header-text-color', getContrastColor(headerBg));
+          const hh = document.querySelector('.panel-header h1'); if(hh) hh.innerText = headerTitle;
+        }, [headerBg, headerTitle]);
+
+        function saveAndApply(){
+          localStorage.setItem('qshop_font', fontFamily);
+          localStorage.setItem('qshop_primary', primary);
+          localStorage.setItem('qshop_theme_name', themeName);
+          
+          localStorage.setItem('qshop_header_bg', headerBg);
+          // keep header title persistent too
+          localStorage.setItem('qshop_header_title', headerTitle);
+        }
+
+        function resetDefaults(){
+          setThemeName('default');
+          setFontFamily('Rubik');
+          setPrimary('#0c1cff');
+          localStorage.removeItem('qshop_font');
+          localStorage.removeItem('qshop_primary');
+          localStorage.removeItem('qshop_accent');
+          localStorage.removeItem('qshop_theme_name');
+          
+          applyThemeConfig({bg:'#f7fafc', text:'#374151', muted:'#6b7280', cardBg:'#ffffff', primary:'#0c1cff', accent:'#3effd8', font:"'Rubik', system-ui, -apple-system"});
+        }
+
+        
+
+        return (
+          <div className="page">
+            <h2>Оформление и темы</h2>
+            <p>Вы можете менять тему, шрифт и основные цвета. Изменения применяются сразу. Нажмите «Сохранить» чтобы закрепить выбор.</p>
+
+            <div className="theme-controls" style={{marginTop:18}}>
+              <div className="control-row">
+                <label>Тема:</label>
+                <select value={themeName} onChange={(e)=>setThemeName(e.target.value)}>
+                  <option value="default">По умолчанию (светлая)</option>
+                  <option value="dark">Тёмная</option>
+                  <option value="soft">Мягкая голубая</option>
+                </select>
+              </div>
+
+              <div className="control-row">
+                <label>Шрифт:</label>
+                <select value={fontFamily} onChange={(e)=>setFontFamily(e.target.value)}>
+                  {fontOptions.map(f=> <option key={f.key} value={f.key}>{f.label}</option>)}
+                </select>
+                
+              </div>
+
+              <div className="control-row">
+                <label>Шапка (header):</label>
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                  <input type="text" value={headerTitle} onChange={(e)=>setHeaderTitle(e.target.value)} placeholder="Заголовок шапки" style={{padding:'8px 10px', borderRadius:8, border:'1px solid rgba(16,24,40,0.06)'}} />
+                  <div style={{display:'flex',gap:12,alignItems:'center'}}>
+                    <div style={{fontWeight:600,width:84}}>Фон:</div>
+                    <input type="color" value={headerBg} onChange={(e)=>setHeaderBg(e.target.value)} />
+                    <div className="font-sample" style={{marginLeft:12}}>Текст автоматически подбирается для читаемости</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="control-row">
+                <label>Primary цвет:</label>
+                <input type="color" value={primary} onChange={(e)=>setPrimary(e.target.value)} />
+                
+              </div>
+
+              
+
+              <div className="control-row">
+                <GradientButton onClick={saveAndApply}>Сохранить</GradientButton>
+                <GradientButton onClick={resetDefaults} style={{marginLeft:12}}>Сбросить</GradientButton>
+                <GradientButton onClick={()=>navigate('/')} style={{marginLeft:12}}>Назад</GradientButton>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function DesignPage(){
+        return (
+          <div className="page">
+            <h2>Гибкость дизайна</h2>
+            <p>Настраивайте блоки, порядок разделов и отображение на мобильных устройствах. Поддерживаются адаптивные макеты и кастомные блоки.</p>
+            <div style={{marginTop:18}}><GradientButton onClick={()=>navigate('/')}>Назад</GradientButton></div>
+          </div>
+        );
+      }
+
+      // modal kept for backward compatibility but not used here
+
+      return (
+        <main className="panel">
+            <svg className="decor decor-1" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#e6f0ff" />
+                <stop offset="1" stop-color="#f7fdff" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="220" height="220" rx="36" fill="url(#g1)" opacity="0.9" />
+          </svg>
+          <header className="panel-header">
+            <div className="header-top">
+              <h1>QShop</h1>
+              <button className="login-btn" onClick={()=>alert('Вход')}>Вход</button>
+            </div>
+            <p className="desc">Добро пожаловать в QShop. Оформляйте, добавляйте товары и управляйте продажами — всё в одном месте. Ваш аккаунт генерируется автоматически. Получите логин и пароль в нашем Telegram-боте.</p>
+          </header>
+
+          {route === '/' && (
+          <section className="cards">
+            <FeatureCard
+              icon={
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 2h9l3 4v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" stroke="#0c1cff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 6h18" stroke="#3effd8" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+              }
+              title="Личный магазин"
+              desc="У каждого клиента свой собственный кабинет и торговая площадка."
+            />
+            <FeatureCard
+              icon={
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="3" stroke="#0c1cff" strokeWidth="1.2"/>
+                  <path d="M4 12h2M18 12h2M12 4v2M12 18v2" stroke="#3effd8" strokeWidth="1.2" strokeLinecap="round"/>
+                </svg>
+              }
+              title="Оформление и темы"
+              desc="Меняйте тему, стиль, название — создавайте свой уникальный магазин."
+            />
+            <FeatureCard
+              icon={
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 7h18v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7z" stroke="#0c1cff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 3l-4 4-4-4" stroke="#3effd8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              }
+              title="Гибкость дизайна"
+              desc="Настройка внешнего вида в пару кликов, современный UI."
+            />
+          </section>
+          )}
+
+          {route === '/store' && <StorePage />}
+          {route === '/themes' && <ThemesPage />}
+          {route === '/design' && <DesignPage />}
+
+          {/* Modal component is defined but we use separate pages via hash routing */}
+
+          <footer className="panel-footer">
+            <GradientButton onClick={() => window.open('https:/t.me/qshopasiabot','_blank')}>TELEGRAM BOT</GradientButton>
+          </footer>
+        </main>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<Panel />);
+  </script>
+
+</body>
+</html>
