@@ -12,6 +12,9 @@ const Client = sequelize.define("Client", {
     periodFrom: { type: DataTypes.DATE, allowNull: false },
     periodTo: { type: DataTypes.DATE, allowNull: false },
     payment: { type: DataTypes.STRING, allowNull: false },
+    slug: { type: DataTypes.STRING, unique: true },
+
 });
 
 module.exports = Client;
+

@@ -16,6 +16,20 @@ router.get("/all", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+router.get("/bySlug/:slug", async (req, res) => {
+    try {
+        const client = await Client.findOne({
+            where: { slug: req.params.slug }
+        });
+
+        if (!client) return res.status(404).json({ message: "Not found" });
+
+        res.json(client);
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 
 // POST /api/clients/add
 router.post("/add", async (req, res) => {
@@ -31,12 +45,15 @@ router.post("/add", async (req, res) => {
         if (existing) return res.status(400).json({ message: "Такой домен уже существует" });
 
         const email = `client@${domain}.com`;
-        const password = Math.random().toString(36).slice(2, 9); // demo password
+        const password = Math.random().toString(36).slice(2, 9);
         const hash = await bcrypt.hash(password, 10);
+
+        const slug = domain.toLowerCase().trim();
 
         const newClient = await Client.create({
             shop,
             domain,
+            slug,                 // ← ДОБАВЛЕНО
             email,
             password: hash,
             visiblePassword: password,
@@ -52,6 +69,7 @@ router.post("/add", async (req, res) => {
                 id: newClient.id,
                 shop: newClient.shop,
                 domain: newClient.domain,
+                slug: newClient.slug,
                 email: newClient.email,
                 periodFrom: newClient.periodFrom,
                 periodTo: newClient.periodTo,
@@ -67,6 +85,7 @@ router.post("/add", async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
 
 
 // DELETE /api/clients/:id

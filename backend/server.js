@@ -35,3 +35,4 @@ app.listen(PORT, async () => {
         console.error("DB error:", err);
     }
 });
+app.use("/api/public", require("./routes/public"));
